@@ -1,5 +1,8 @@
 def call() {
     stage('Build') {
-        bat 'mvn clean install'
+        echo 'Building the application...'
+        // Simulate a build process
+        bat 'echo "Building application..."'
     }
 }
+
