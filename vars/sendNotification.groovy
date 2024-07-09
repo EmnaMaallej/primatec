@@ -7,7 +7,7 @@ def call(String buildStatus) {
             subject: subject,
             body: body,
             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-            to: 'default@example.com'
+            to: 'emna.maallej@gmail.com'
         )
     }
 }
