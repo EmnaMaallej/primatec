@@ -1,29 +1,21 @@
 package org.jenkins
 
-import hudson.model.Node
-import hudson.model.AbstractProject
+class SharedLibrary {
 
-class JenkinsInfo {
-    
-    static void printAgentProperties() {
+    static List<String> getAgentProperties() {
         def jenkins = Jenkins.instance
-        def agents = jenkins.nodes
-
-        agents.each { agent ->
-            echo "Agent Name: ${agent.name}"
-            echo "Idle: ${agent.isIdle()}"
-            echo "Number of Executors: ${agent.getNumExecutors()}"
+        def agents = jenkins.nodes.collect { agent ->
+            "Agent Name: ${agent.name}, Idle: ${agent.isIdle()}, Number of Executors: ${agent.getNumExecutors()}"
         }
+        return agents
     }
 
-    static void printBuildInfo() {
+    static List<String> getBuildInfo() {
         def jenkins = Jenkins.instance
-        def builds = jenkins.getAllItems(AbstractProject.class)
-
-        builds.each { build ->
-            echo "Build Name: ${build.fullName}"
-            echo "Build Number: ${build.lastBuild.number}"
-            echo "Build Status: ${build.lastBuild.result}"
+        def builds = jenkins.getAllItems(hudson.model.AbstractProject.class).collect { build ->
+            "Build Name: ${build.fullName}, Build Number: ${build.lastBuild.number}, Build Status: ${build.lastBuild.result}"
         }
+        return builds
     }
 }
+
