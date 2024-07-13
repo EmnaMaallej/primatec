@@ -1,21 +1,28 @@
 package org.jenkins
 
+import hudson.model.Computer
+import hudson.model.Node
+import hudson.model.AbstractBuild
+
 class SharedLibrary {
 
     static List<String> getAgentProperties() {
         def jenkins = Jenkins.instance
-        def agents = jenkins.nodes.collect { agent ->
-            "Agent Name: ${agent.name}, Idle: ${agent.isIdle()}, Number of Executors: ${agent.getNumExecutors()}"
+        def nodes = jenkins.nodes
+
+        nodes.collect { node ->
+            def computer = node.toComputer()
+            "Agent Name: ${node.name}, Offline: ${computer.isOffline()}, Number of Executors: ${computer.countExecutors()}"
         }
-        return agents
     }
 
     static List<String> getBuildInfo() {
         def jenkins = Jenkins.instance
-        def builds = jenkins.getAllItems(hudson.model.AbstractProject.class).collect { build ->
+        def builds = jenkins.getAllItems(AbstractProject.class)
+
+        builds.collect { build ->
             "Build Name: ${build.fullName}, Build Number: ${build.lastBuild.number}, Build Status: ${build.lastBuild.result}"
         }
-        return builds
     }
 }
 
