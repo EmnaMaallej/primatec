@@ -6,6 +6,8 @@ import hudson.model.AbstractBuild
 
 
 
+import org.jenkinsci.plugins.workflow.job.WorkflowJob
+
 class SharedLibrary {
 
     static List<String> getAgentProperties() {
@@ -55,7 +57,3 @@ class SharedLibrary {
         }
     }
 }
-
-
-
-       
