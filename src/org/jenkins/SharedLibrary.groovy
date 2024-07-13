@@ -10,15 +10,32 @@ import org.jenkinsci.plugins.workflow.job.WorkflowJob
 
 class SharedLibrary {
 
-    static List<String> getAgentProperties() {
+   static List<String> getAgentProperties() {
         def jenkins = Jenkins.instance
         def nodes = jenkins.nodes
 
         nodes.collect { node ->
             def computer = node.toComputer()
-            "Agent Name: ${node.name}, Offline: ${computer.isOffline()}, Number of Executors: ${computer.countExecutors()}"
+            def nodeDetails = "Agent Name: ${node.name}"
+            
+            if (computer) {
+                nodeDetails += "\n\tOnline: ${!computer.isOffline()}"
+                nodeDetails += "\n\tTemporarily Offline: ${computer.isTemporarilyOffline()}"
+                nodeDetails += "\n\tIdle: ${computer.isIdle()}"
+                nodeDetails += "\n\tNumber of Executors: ${computer.countExecutors()}"
+                nodeDetails += "\n\tExecutors: ${computer.executors.collect { "${it.displayName}" }.join(', ')}"
+                nodeDetails += "\n\tMonitor Data: ${computer.monitorData}"
+                nodeDetails += "\n\tConnect Time: ${new Date(computer.connectTime)}"
+                nodeDetails += "\n\tLaunch Time: ${new Date(computer.launchTime)}"
+                nodeDetails += "\n\tOffline Cause: ${computer.offlineCause?.toString() ?: 'None'}"
+            } else {
+                nodeDetails += "\n\tOffline: true (Not connected)"
+            }
+            
+            nodeDetails
         }
     }
+}
 
     static List<String> getBuildInfo() {
         def jenkins = Jenkins.instance
