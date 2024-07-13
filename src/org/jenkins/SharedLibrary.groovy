@@ -4,6 +4,8 @@ import hudson.model.Computer
 import hudson.model.Node
 import hudson.model.AbstractBuild
 
+
+
 class SharedLibrary {
 
     static List<String> getAgentProperties() {
@@ -53,3 +55,7 @@ class SharedLibrary {
         }
     }
 }
+
+
+
+       
