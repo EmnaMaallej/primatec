@@ -1,8 +1,5 @@
 package org.jenkins
 
-import hudson.model.AbstractBuild
-import hudson.model.AbstractProject
-import hudson.model.Job
 import hudson.model.Computer
 import hudson.model.Node
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
@@ -27,7 +24,14 @@ class SharedLibrary {
                 nodeDetails += "\n\tExecutors: ${computer.executors.collect { it.displayName }.join(', ')}"
                 nodeDetails += "\n\tMonitor Data: ${computer.monitorData}"
                 nodeDetails += "\n\tConnect Time: ${new Date(computer.connectTime)}"
-                nodeDetails += "\n\tLaunch Time: ${new Date(computer.launchTime)}"
+                
+                // Check if the computer is an instance of SlaveComputer
+                if (computer instanceof hudson.slaves.SlaveComputer) {
+                    nodeDetails += "\n\tLaunch Time: ${new Date(computer.getConnectTime())}"
+                } else {
+                    nodeDetails += "\n\tLaunch Time: Not applicable"
+                }
+                
                 nodeDetails += "\n\tOffline Cause: ${computer.offlineCause?.toString() ?: 'None'}"
             } else {
                 nodeDetails += "\n\tOffline: true (Not connected)"
@@ -39,7 +43,7 @@ class SharedLibrary {
 
     static List<String> getBuildInfo() {
         def jenkins = Jenkins.instance
-        def builds = jenkins.getAllItems(AbstractProject.class)
+        def builds = jenkins.getAllItems(hudson.model.AbstractProject.class)
 
         builds.collect { project ->
             def lastBuild = project.lastBuild
@@ -53,7 +57,7 @@ class SharedLibrary {
 
     static List<String> getJobDetails() {
         def jenkins = Jenkins.instance
-        def jobs = jenkins.getAllItems(Job.class)
+        def jobs = jenkins.getAllItems(hudson.model.Job.class)
 
         jobs.collect { job ->
             def details = "Job Name: ${job.fullName}, Class: ${job.class.simpleName}"
@@ -74,4 +78,5 @@ class SharedLibrary {
         }
     }
 }
+
 
