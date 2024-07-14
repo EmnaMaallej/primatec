@@ -25,7 +25,7 @@ class SharedLibrary {
                 nodeDetails += "\n\tMonitor Data: ${computer.monitorData}"
                 nodeDetails += "\n\tConnect Time: ${new Date(computer.connectTime)}"
                 
-                // Check if the computer is an instance of SlaveComputer
+                
                 if (computer instanceof hudson.slaves.SlaveComputer) {
                     nodeDetails += "\n\tLaunch Time: ${new Date(computer.getConnectTime())}"
                 } else {
