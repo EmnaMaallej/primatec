@@ -4,7 +4,7 @@ import hudson.model.Job
 import hudson.model.Run
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
 
-class JobInfo {
+class Job {
     private Job job
 
     JobInfo(Job job) {
