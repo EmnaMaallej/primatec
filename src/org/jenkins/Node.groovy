@@ -2,8 +2,6 @@ package org.jenkins
 
 import hudson.model.Computer
 import hudson.model.Node as JenkinsNode
-import org.jenkinsci.plugins.workflow.job.WorkflowJob
-
 import java.util.Date
 
 class Node {
@@ -20,27 +18,27 @@ class Node {
     }
 
     boolean isOnline() {
-        return computer ? !computer.isOffline() : false
+        return computer && !computer.isOffline()
     }
 
     boolean isTemporarilyOffline() {
-        return computer ? computer.isTemporarilyOffline() : false
+        return computer?.isTemporarilyOffline() ?: false
     }
 
     boolean isIdle() {
-        return computer ? computer.isIdle() : false
+        return computer?.isIdle() ?: false
     }
 
     int getNumberOfExecutors() {
-        return computer ? computer.countExecutors() : 0
+        return computer?.countExecutors() ?: 0
     }
 
     String getExecutors() {
-        return computer ? computer.executors.collect { it.displayName }.join(', ') : "None"
+        return computer?.executors?.collect { it.displayName }?.join(', ') ?: 'None'
     }
 
-    Map getMonitorData() {
-        return computer ? computer.monitorData : [:]
+    String getMonitorData() {
+        return computer?.monitorData?.toString() ?: 'None'
     }
 
     Date getConnectTime() {
@@ -48,15 +46,11 @@ class Node {
     }
 
     Date getLaunchTime() {
-        if (computer instanceof hudson.slaves.SlaveComputer) {
-            return new Date(computer.getConnectTime())
-        } else {
-            return null
-        }
+        return (computer instanceof hudson.slaves.SlaveComputer) ? new Date(computer.getConnectTime()) : null
     }
 
     String getOfflineCause() {
-        return computer ? (computer.offlineCause?.toString() ?: 'None') : 'None'
+        return computer?.offlineCause?.toString() ?: 'None'
     }
 
     static List<Node> getAllNodes() {
@@ -65,4 +59,5 @@ class Node {
         return nodes.collect { new Node(it) }
     }
 }
+
 
