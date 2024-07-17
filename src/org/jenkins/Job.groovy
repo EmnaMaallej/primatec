@@ -1,12 +1,13 @@
 package org.jenkins
 
 import hudson.model.Job
+import hudson.model.Run
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
 
-class Job {
+class JobInfo {
     private Job job
 
-    Job(Job job) {
+    JobInfo(Job job) {
         this.job = job
     }
 
@@ -34,9 +35,10 @@ class Job {
         }
     }
 
-    static List<Job> getAllJobs() {
+    static List<JobInfo> getAllJobs() {
         def jenkins = Jenkins.instance
         def jobs = jenkins.getAllItems(Job.class)
-        return jobs.collect { new Job(it) }
+        return jobs.collect { new JobInfo(it) }
     }
 }
+
