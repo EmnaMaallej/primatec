@@ -7,7 +7,7 @@ import org.jenkinsci.plugins.workflow.job.WorkflowJob
 class Job {
     private Job job
 
-    JobInfo(Job job) {
+    Job(Job job) {
         this.job = job
     }
 
