@@ -1,6 +1,8 @@
 package org.jenkins
 
 import hudson.model.AbstractProject
+import hudson.model.Run
+import hudson.model.Result
 
 class Build {
     private AbstractProject project
@@ -29,3 +31,4 @@ class Build {
         return projects.collect { new Build(it) }
     }
 }
+
