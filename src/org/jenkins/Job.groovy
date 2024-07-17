@@ -35,7 +35,7 @@ class Job {
         }
     }
 
-    static List<JobInfo> getAllJobs() {
+    static List<Job> getAllJobs() {
         def jenkins = Jenkins.instance
         def jobs = jenkins.getAllItems(Job.class)
         return jobs.collect { new JobInfo(it) }
