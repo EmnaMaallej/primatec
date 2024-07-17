@@ -1,29 +1,31 @@
-@Library('my-shared-library') _  // Replace 'my-shared-library' with the name of your shared library
+package org.jenkins
 
-import org.jenkins.Build
+import hudson.model.AbstractProject
 
-pipeline {
-    agent any
+class Build {
+    private AbstractProject project
+    private Run lastBuild
 
-    stages {
-        stage('Build Info') {
-            steps {
-                script {
-                    // Fetch all builds using the static method
-                    def builds = Build.getAllBuilds()
+    Build(AbstractProject project) {
+        this.project = project
+        this.lastBuild = project.lastBuild
+    }
 
-                    // Print build information
-                    builds.each { build ->
-                        println "Project Name: ${build.getProjectName()}"
-                        if (build.getLastBuildNumber() != -1) {
-                            println "\tLast Build Number: ${build.getLastBuildNumber()}"
-                            println "\tLast Build Status: ${build.getLastBuildStatus()}"
-                        } else {
-                            println "\tNo builds found for this project"
-                        }
-                    }
-                }
-            }
-        }
+    String getProjectName() {
+        return project.fullName
+    }
+
+    int getLastBuildNumber() {
+        return lastBuild ? lastBuild.number : -1
+    }
+
+    String getLastBuildStatus() {
+        return lastBuild ? (lastBuild.result ? lastBuild.result.toString() : 'IN_PROGRESS') : 'No builds found'
+    }
+
+    static List<Build> getAllBuilds() {
+        def jenkins = Jenkins.instance
+        def projects = jenkins.getAllItems(AbstractProject.class)
+        return projects.collect { new Build(it) }
     }
 }
