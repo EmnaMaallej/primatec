@@ -41,9 +41,3 @@ class Job {
     }
 }
 
-
-
-    boolean isDisabled() {
-        return job ? job.isDisabled() : false
-    }
-}
