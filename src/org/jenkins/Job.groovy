@@ -1,13 +1,12 @@
 package org.jenkins
 
-import hudson.model.Job
-import hudson.model.Run
+import hudson.model.Job as HudsonJob
 import hudson.model.ParametersAction
 import hudson.model.StringParameterValue
 import jenkins.model.Jenkins
 
 class Job {
-    private Job job
+    private HudsonJob job
 
     Job(String jobName) {
         this.job = Jenkins.instance.getItemByFullName(jobName)
@@ -41,6 +40,7 @@ class Job {
         }
     }
 }
+
 
 
     boolean isDisabled() {
