@@ -4,59 +4,67 @@ import hudson.model.Computer
 import jenkins.model.Jenkins
 
 class Node {
-    def node
+    def script
+    def nodeName
 
-    Node(def node) {
-        this.node = node
+    Node(script, nodeName) {
+        this.script = script
+        this.nodeName = nodeName
     }
 
-    String getName() {
-        return node.nodeName
+    def getNodeName() {
+        return nodeName
     }
 
-    boolean isOnline() {
-        return node.toComputer()?.isOnline()
+    def isOnline() {
+        return script.sh(script: "curl -s http://jenkins/api/json | jq '.nodes[] | select(.displayName==\"${nodeName}\").offline'", returnStdout: true).trim() == "false"
     }
 
-    boolean isTemporarilyOffline() {
-        return node.toComputer()?.isTemporarilyOffline()
+    def isTemporarilyOffline() {
+        return script.sh(script: "curl -s http://jenkins/api/json | jq '.nodes[] | select(.displayName==\"${nodeName}\").temporarilyOffline'", returnStdout: true).trim() == "true"
     }
 
-    boolean isIdle() {
-        return node.toComputer()?.isIdle()
+    def isIdle() {
+        return script.sh(script: "curl -s http://jenkins/api/json | jq '.nodes[] | select(.displayName==\"${nodeName}\").idle'", returnStdout: true).trim() == "true"
     }
 
-    int getNumberOfExecutors() {
-        return node.numExecutors
+    def getNumberOfExecutors() {
+        return script.sh(script: "curl -s http://jenkins/api/json | jq '.nodes[] | select(.displayName==\"${nodeName}\").numExecutors'", returnStdout: true).trim().toInteger()
     }
 
-    List<Computer> getExecutors() {
-        return node.toComputer()?.executors
+    def getExecutors() {
+        return script.sh(script: "curl -s http://jenkins/api/json | jq '.nodes[] | select(.displayName==\"${nodeName}\").executors[]'", returnStdout: true).trim()
     }
 
-    Map getMonitorData() {
-        return node.toComputer()?.getMonitorData()
+    def getMonitorData() {
+        return script.sh(script: "curl -s http://jenkins/api/json | jq '.nodes[] | select(.displayName==\"${nodeName}\").monitorData'", returnStdout: true).trim()
     }
 
-    long getConnectTime() {
-        return node.toComputer()?.connectTime
+    def getConnectTime() {
+        return script.sh(script: "curl -s http://jenkins/api/json | jq '.nodes[] | select(.displayName==\"${nodeName}\").connectTime'", returnStdout: true).trim()
     }
 
-    long getLaunchTime() {
-        return node.toComputer()?.startTime
+    def getLaunchTime() {
+        return script.sh(script: "curl -s http://jenkins/api/json | jq '.nodes[] | select(.displayName==\"${nodeName}\").launchTime'", returnStdout: true).trim()
     }
 
     def getOfflineCause() {
-        return node.toComputer()?.offlineCause?.description
+        return script.sh(script: "curl -s http://jenkins/api/json | jq '.nodes[] | select(.displayName==\"${nodeName}\").offlineCause'", returnStdout: true).trim()
     }
 
-    void runJob(JobInfo jobInfo) {
-        // Implement job running logic here, for example:
-        def job = jobInfo.getJob()
-        job.scheduleBuild2(0, new hudson.model.Cause.UserIdCause())
+    def displayProperties() {
+        script.echo "Agent Name: ${getNodeName()}"
+        script.echo "Online: ${isOnline()}"
+        script.echo "Temporarily Offline: ${isTemporarilyOffline()}"
+        script.echo "Idle: ${isIdle()}"
+        script.echo "Number of Executors: ${getNumberOfExecutors()}"
+        script.echo "Executors: ${getExecutors()}"
+        script.echo "Monitor Data: ${getMonitorData()}"
+        script.echo "Connect Time: ${getConnectTime()}"
+        script.echo "Launch Time: ${getLaunchTime()}"
+        script.echo "Offline Cause: ${getOfflineCause()}"
     }
 }
-
 
 
 
