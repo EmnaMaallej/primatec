@@ -1,19 +1,13 @@
 package org.jenkins
 
-import hudson.model.Computer
+import hudson.model.Node as HudsonNode
 import jenkins.model.Jenkins
 
-
-import hudson.model.Node as JenkinsNode
-import java.util.Date
-
 class Node {
-    private JenkinsNode node
-    private Computer computer
+    private HudsonNode node
 
     Node(String nodeName) {
         this.node = Jenkins.instance.getNode(nodeName)
-        this.computer = node?.toComputer()
     }
 
     String getName() {
@@ -21,49 +15,63 @@ class Node {
     }
 
     boolean isOnline() {
-        return computer ? !computer.isOffline() : false
+        return node ? node.toComputer()?.isOnline() : false
     }
 
     boolean isTemporarilyOffline() {
-        return computer ? computer.isTemporarilyOffline() : false
+        return node ? node.toComputer()?.isTemporarilyOffline() : false
     }
 
     boolean isIdle() {
-        return computer ? computer.isIdle() : false
+        return node ? node.toComputer()?.isIdle() : false
     }
 
     int getNumberOfExecutors() {
-        return computer ? computer.countExecutors() : 0
+        return node ? node.numExecutors : 0
     }
 
-    String getExecutors() {
-        return computer ? computer.executors.collect { it.displayName }.join(', ') : "None"
+    List<String> getExecutors() {
+        return node ? (0..<node.numExecutors).collect { "Executor ${it + 1}" } : []
     }
 
-    Map getMonitorData() {
-        return computer ? computer.monitorData : [:]
+    Map<String, Object> getMonitorData() {
+        def monitor = node ? node.toComputer()?.monitor : null
+        return monitor ? [
+            "hudson.node_monitors.Jvm" : monitor.jvm,
+            "hudson.node_monitors.ResponseTime" : monitor.responseTime,
+            "hudson.node_monitors.SwapSpace" : monitor.swapSpace,
+            "hudson.node_monitors.TmpSpace" : monitor.tmpSpace,
+            "hudson.node_monitors.DiskSpace" : monitor.diskSpace,
+            "hudson.node_monitors.Throughput" : monitor.throughput
+        ] : [:]
     }
 
-    Date getConnectTime() {
-        return computer ? new Date(computer.connectTime) : null
+    long getConnectTime() {
+        return node ? node.toComputer()?.connectTime : 0
     }
 
-    Date getLaunchTime() {
-        if (computer instanceof hudson.slaves.SlaveComputer) {
-            return new Date(computer.getConnectTime())
-        } else {
-            return null
-        }
+    long getLaunchTime() {
+        return node ? node.toComputer()?.launchTime : 0
     }
 
     String getOfflineCause() {
-        return computer ? (computer.offlineCause?.toString() ?: 'None') : 'None'
+        return node ? node.toComputer()?.offlineCause?.message : "Offline cause not available"
     }
 
-    static List<Node> getAllNodes() {
-        def jenkins = Jenkins.instance
-        def nodes = jenkins.nodes
-        return nodes.collect { new Node(it.name) }
+    Map<String, Object> getNodeProperties() {
+        return node ? [
+            "Name": node.name,
+            "Online": isOnline(),
+            "Temporarily Offline": isTemporarilyOffline(),
+            "Idle": isIdle(),
+            "Number of Executors": getNumberOfExecutors(),
+            "Executors": getExecutors(),
+            "Monitor Data": getMonitorData(),
+            "Connect Time": getConnectTime(),
+            "Launch Time": getLaunchTime(),
+            "Offline Cause": getOfflineCause()
+        ] : [:]
     }
 }
+
 
