@@ -1,5 +1,9 @@
+package org.jenkins
 
+import hudson.model.Build
 import hudson.model.Run
+import hudson.model.ParametersAction
+import hudson.model.StringParameterValue
 import jenkins.model.Jenkins
 
 class Build {
@@ -15,26 +19,31 @@ class Build {
     }
 
     String getResult() {
-        return build ? build.result.toString() : "Build not found"
+        return build ? build.result.toString() : "Result not found"
     }
 
     long getDuration() {
-        return build ? build.duration : 0L
+        return build ? build.duration : 0
     }
 
-    Date getTimestamp() {
-        return build ? new Date(build.timeInMillis) : null
+    long getTimestamp() {
+        return build ? build.timestamp : 0
     }
 
-    String getCauses() {
-        return build ? build.causes.collect { it.shortDescription }.join(', ') : "Build not found"
+    List<String> getCauses() {
+        return build ? build.causes.collect { it.toString() } : []
     }
 
-    Map getParameters() {
-        def parametersAction = build ? build.getAction(hudson.model.ParametersAction) : null
-        return parametersAction ? parametersAction.parameters.collectEntries {
-            [(it.name): it.value]
-        } : [:]
+    List<Map<String, String>> getParameters() {
+        def params = build?.actions.find { it instanceof ParametersAction }?.parameters ?: []
+        return params.collect { param ->
+            [name: param.name, value: param instanceof StringParameterValue ? param.value : 'Non-string parameter']
+        }
+    }
+    
+    String getAgent() {
+        return build ? build.executor?.node?.name : "Agent not found"
     }
 }
+
 
