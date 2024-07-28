@@ -1,6 +1,5 @@
 package org.jenkins
 
-import hudson.model.Build
 import hudson.model.Run
 import hudson.model.ParametersAction
 import hudson.model.StringParameterValue
@@ -44,6 +43,13 @@ class Build {
     String getAgent() {
         return build ? build.executor?.node?.name : "Agent not found"
     }
+
+    Map<String, Object> getAgentProperties() {
+        def agentName = getAgent()
+        def node = new Node(agentName)
+        return node.getNodeProperties()
+    }
 }
+
 
 
