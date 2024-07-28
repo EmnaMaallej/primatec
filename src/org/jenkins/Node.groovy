@@ -3,40 +3,67 @@ package org.jenkins
 import hudson.model.Computer
 import jenkins.model.Jenkins
 
+
+import hudson.model.Node as JenkinsNode
+import java.util.Date
+
 class Node {
-    def nodeName
+    private JenkinsNode node
+    private Computer computer
 
     Node(String nodeName) {
-        this.nodeName = nodeName
+        this.node = Jenkins.instance.getNode(nodeName)
+        this.computer = node?.toComputer()
     }
 
-    def getName() {
-        def node = Jenkins.instance.getNode(nodeName)
-        return node ? node.getNodeName() : "Node not found"
+    String getName() {
+        return node ? node.name : "Node not found"
     }
 
-    def getDescription() {
-        def node = Jenkins.instance.getNode(nodeName)
-        return node ? node.getNodeDescription() : "Node not found"
+    boolean isOnline() {
+        return computer ? !computer.isOffline() : false
     }
 
-    def getRemoteFS() {
-        def node = Jenkins.instance.getNode(nodeName)
-        return node ? node.getRemoteFS() : "Node not found"
+    boolean isTemporarilyOffline() {
+        return computer ? computer.isTemporarilyOffline() : false
     }
 
-    def getNumExecutors() {
-        def node = Jenkins.instance.getNode(nodeName)
-        return node ? node.getNumExecutors() : "Node not found"
+    boolean isIdle() {
+        return computer ? computer.isIdle() : false
     }
 
-    def getLabels() {
-        def node = Jenkins.instance.getNode(nodeName)
-        return node ? node.getLabelString() : "Node not found"
+    int getNumberOfExecutors() {
+        return computer ? computer.countExecutors() : 0
     }
 
-    def isOffline() {
-        def node = Jenkins.instance.getNode(nodeName)
-        return node ? node.toComputer().isOffline() : "Node not found"
+    String getExecutors() {
+        return computer ? computer.executors.collect { it.displayName }.join(', ') : "None"
+    }
+
+    Map getMonitorData() {
+        return computer ? computer.monitorData : [:]
+    }
+
+    Date getConnectTime() {
+        return computer ? new Date(computer.connectTime) : null
+    }
+
+    Date getLaunchTime() {
+        if (computer instanceof hudson.slaves.SlaveComputer) {
+            return new Date(computer.getConnectTime())
+        } else {
+            return null
+        }
+    }
+
+    String getOfflineCause() {
+        return computer ? (computer.offlineCause?.toString() ?: 'None') : 'None'
+    }
+
+    static List<Node> getAllNodes() {
+        def jenkins = Jenkins.instance
+        def nodes = jenkins.nodes
+        return nodes.collect { new Node(it.name) }
     }
 }
+
