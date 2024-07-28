@@ -61,13 +61,13 @@ class JobInfo implements JenkinsEntity {
     }
 
     // Method to schedule this job to be executed on the specified node
-    void scheduleBuildOnNode(Node node) {
+    void scheduleBuildOnNode(String nodeName) {
         def jobToRun = job
 
         if (jobToRun instanceof WorkflowJob) {
             // Schedule the build with node restriction
             def parametersAction = new ParametersAction([
-                new StringParameterValue("NODE_NAME", node.getName())
+                new StringParameterValue("NODE_NAME", nodeName)
             ])
             jobToRun.scheduleBuild2(0, parametersAction)
         } else {
@@ -75,6 +75,7 @@ class JobInfo implements JenkinsEntity {
         }
     }
 }
+
 
 
 
