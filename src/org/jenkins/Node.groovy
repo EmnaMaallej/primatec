@@ -1,91 +1,62 @@
 package org.jenkins
 
 import hudson.model.Computer
-import hudson.model.Node as JenkinsNode
-import java.util.Date
+import jenkins.model.Jenkins
 
-class Node implements JenkinsEntity {
-    private JenkinsNode node
-    private Computer computer
+class Node {
+    def node
 
-    Node(JenkinsNode node) {
+    Node(def node) {
         this.node = node
-        this.computer = node.toComputer()
     }
 
-    @Override
     String getName() {
-        return node.name
+        return node.nodeName
     }
 
     boolean isOnline() {
-        return computer ? !computer.isOffline() : false
+        return node.toComputer()?.isOnline()
     }
 
     boolean isTemporarilyOffline() {
-        return computer ? computer.isTemporarilyOffline() : false
+        return node.toComputer()?.isTemporarilyOffline()
     }
 
     boolean isIdle() {
-        return computer ? computer.isIdle() : false
+        return node.toComputer()?.isIdle()
     }
 
     int getNumberOfExecutors() {
-        return computer ? computer.countExecutors() : 0
+        return node.numExecutors
     }
 
-    String getExecutors() {
-        return computer ? computer.executors.collect { it.displayName }.join(', ') : "None"
+    List<Computer> getExecutors() {
+        return node.toComputer()?.executors
     }
 
     Map getMonitorData() {
-        return computer ? computer.monitorData : [:]
+        return node.toComputer()?.getMonitorData()
     }
 
-    Date getConnectTime() {
-        return computer ? new Date(computer.connectTime) : null
+    long getConnectTime() {
+        return node.toComputer()?.connectTime
     }
 
-    Date getLaunchTime() {
-        if (computer instanceof hudson.slaves.SlaveComputer) {
-            return new Date(computer.getConnectTime())
-        } else {
-            return null
-        }
+    long getLaunchTime() {
+        return node.toComputer()?.startTime
     }
 
-    String getOfflineCause() {
-        return computer ? (computer.offlineCause?.toString() ?: 'None') : 'None'
+    def getOfflineCause() {
+        return node.toComputer()?.offlineCause?.description
     }
 
-    List<JobInfo> getJobs() {
-        JobInfo.getAllJobs().findAll { it.getNode().getName() == this.getName() }
+    void runJob(JobInfo jobInfo) {
+        // Implement job running logic here, for example:
+        def job = jobInfo.getJob()
+        job.scheduleBuild2(0, new hudson.model.Cause.UserIdCause())
     }
-
-    List<Build> getBuilds() {
-        Build.getAllBuilds().findAll { it.getNode().getName() == this.getName() }
-    }
-
-    static List<Node> getAllNodes() {
-        def jenkins = Jenkins.instance
-        def nodes = jenkins.nodes
-        return nodes.collect { new Node(it) }
-    }
-
-    // New method to run a job on this node and display properties
-    void runJob(JobInfo job) {
-        // Display properties of the job
-        job.displayProperties()
-        
-        // Display properties of this node
-        this.displayProperties()
-
-        // Schedule the job to run on this node
-        job.scheduleBuildOnNode(this.getName())
-    }
-
-    
 }
+
 
 
 
