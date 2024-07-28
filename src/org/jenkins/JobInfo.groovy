@@ -3,6 +3,8 @@ package org.jenkins
 import hudson.model.Job
 import hudson.model.Run
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
+import hudson.model.ParametersAction
+import hudson.model.StringParameterValue
 
 class JobInfo implements JenkinsEntity {
     private Job job
@@ -51,10 +53,16 @@ class JobInfo implements JenkinsEntity {
         return jobs.collect { new JobInfo(it) }
     }
 
+    // Method to display job properties
+    void displayProperties() {
+        println "Job Name: ${getName()}"
+        println "Job Class: ${getJobClass()}"
+        println "Build Details: ${getBuildDetails().join('\n')}"
+    }
+
     // Method to schedule this job to be executed on the specified node
     void scheduleBuildOnNode(Node node) {
-        def jenkins = Jenkins.instance
-        def jobToRun = jenkins.getItemByFullName(this.getName(), Job.class)
+        def jobToRun = job
 
         if (jobToRun instanceof WorkflowJob) {
             // Schedule the build with node restriction
@@ -67,6 +75,7 @@ class JobInfo implements JenkinsEntity {
         }
     }
 }
+
 
 
 
