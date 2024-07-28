@@ -72,10 +72,19 @@ class Node implements JenkinsEntity {
         return nodes.collect { new Node(it) }
     }
 
-    // New method to run a job on this node
+    // New method to run a job on this node and display properties
     void runJob(JobInfo job) {
-        job.scheduleBuildOnNode(this)
+        // Display properties of the job
+        job.displayProperties()
+        
+        // Display properties of this node
+        this.displayProperties()
+
+        // Schedule the job to run on this node
+        job.scheduleBuildOnNode(this.getName())
     }
+
+    
 }
 
 
