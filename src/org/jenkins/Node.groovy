@@ -2,11 +2,9 @@ package org.jenkins
 
 import hudson.model.Computer
 import hudson.model.Node as JenkinsNode
-import org.jenkinsci.plugins.workflow.job.WorkflowJob
-
 import java.util.Date
 
-class Node {
+class Node implements JenkinsEntity {
     private JenkinsNode node
     private Computer computer
 
@@ -15,6 +13,7 @@ class Node {
         this.computer = node.toComputer()
     }
 
+    @Override
     String getName() {
         return node.name
     }
@@ -59,12 +58,21 @@ class Node {
         return computer ? (computer.offlineCause?.toString() ?: 'None') : 'None'
     }
 
+    List<JobInfo> getJobs() {
+        JobInfo.getAllJobs().findAll { it.getNode().getName() == this.getName() }
+    }
+
+    List<Build> getBuilds() {
+        Build.getAllBuilds().findAll { it.getNode().getName() == this.getName() }
+    }
+
     static List<Node> getAllNodes() {
         def jenkins = Jenkins.instance
         def nodes = jenkins.nodes
         return nodes.collect { new Node(it) }
     }
 }
+
 
 
 
