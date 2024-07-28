@@ -4,52 +4,74 @@ import hudson.model.AbstractProject
 import hudson.model.Run
 import hudson.model.Result
 
-class Build implements JenkinsEntity {
-    private AbstractProject project
-    private Run lastBuild
 
-    Build(AbstractProject project) {
-        this.project = project
-        this.lastBuild = project.lastBuild
+
+
+class Build {
+    def jobName
+    def buildNumber
+
+    Build(String jobName, int buildNumber) {
+        this.jobName = jobName
+        this.buildNumber = buildNumber
     }
 
-    @Override
-    String getName() {
-        return project.fullName
-    }
-
-    int getLastBuildNumber() {
-        return lastBuild ? lastBuild.number : -1
-    }
-
-    String getLastBuildStatus() {
-        return lastBuild ? (lastBuild.result ? lastBuild.result.toString() : 'IN_PROGRESS') : 'No builds found'
-    }
-
-    JobInfo getJob() {
-        JobInfo.getAllJobs().find { it.getName() == this.getProjectName() }
-    }
-
-    Node getNode() {
-        def executor = this.lastBuild.getExecutor()
-        def owner = executor.getOwner()
-        owner.getNode()
-    }
-
-    static List<Build> getAllBuilds() {
-        def jenkins = Jenkins.instance
-        def projects = jenkins.getAllItems(AbstractProject.class)
-        return projects.collect { new Build(it) }
-    }
-
-    static Build getBuildByNumber(String jobName, int buildNumber) {
-        def job = JobInfo.getAllJobs().find { it.getName() == jobName }
+    def getNumber() {
+        def job = Jenkins.instance.getItemByFullName(jobName)
         if (job) {
-            def builds = job.getBuilds()
-            return builds.find { it.getLastBuildNumber() == buildNumber }
+            def build = job.getBuildByNumber(buildNumber)
+            return build ? build.getNumber() : "Build not found"
         }
-        return null
+        return "Job not found"
+    }
+
+    def getResult() {
+        def job = Jenkins.instance.getItemByFullName(jobName)
+        if (job) {
+            def build = job.getBuildByNumber(buildNumber)
+            return build ? build.getResult() : "Build not found"
+        }
+        return "Job not found"
+    }
+
+    def getDuration() {
+        def job = Jenkins.instance.getItemByFullName(jobName)
+        if (job) {
+            def build = job.getBuildByNumber(buildNumber)
+            return build ? build.getDuration() : "Build not found"
+        }
+        return "Job not found"
+    }
+
+    def getTimestamp() {
+        def job = Jenkins.instance.getItemByFullName(jobName)
+        if (job) {
+            def build = job.getBuildByNumber(buildNumber)
+            return build ? build.getTimeInMillis() : "Build not found"
+        }
+        return "Job not found"
+    }
+
+    def getCauses() {
+        def job = Jenkins.instance.getItemByFullName(jobName)
+        if (job) {
+            def build = job.getBuildByNumber(buildNumber)
+            return build ? build.getCauses().collect { it.getShortDescription() } : "Build not found"
+        }
+        return "Job not found"
+    }
+
+    def getParameters() {
+        def job = Jenkins.instance.getItemByFullName(jobName)
+        if (job) {
+            def build = job.getBuildByNumber(buildNumber)
+            return build ? build.getAction(hudson.model.ParametersAction)?.parameters.collect {
+                "${it.getName()}: ${it.getValue()}"
+            } : "Build not found"
+        }
+        return "Job not found"
     }
 }
+
 
 
