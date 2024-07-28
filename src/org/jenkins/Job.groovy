@@ -19,6 +19,9 @@ class Job {
         return job ? job.name : "Job not found"
     }
 
+    String getJobClass() {
+        return job.class.simpleName
+
     String getDescription() {
         return job ? job.description : "Job not found"
     }
