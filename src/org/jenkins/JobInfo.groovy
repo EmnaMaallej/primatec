@@ -4,13 +4,14 @@ import hudson.model.Job
 import hudson.model.Run
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
 
-class JobInfo {
+class JobInfo implements JenkinsEntity {
     private Job job
 
     JobInfo(Job job) {
         this.job = job
     }
 
+    @Override
     String getName() {
         return job.fullName
     }
@@ -35,11 +36,25 @@ class JobInfo {
         }
     }
 
+    List<Build> getBuilds() {
+        Build.getAllBuilds().findAll { it.getProjectName() == this.getName() }
+    }
+
+    Node getNode() {
+        def build = this.job.getLastBuild()
+        build.getExecutor().getOwner().getNode()
+    }
+
     static List<JobInfo> getAllJobs() {
         def jenkins = Jenkins.instance
         def jobs = jenkins.getAllItems(Job.class)
         return jobs.collect { new JobInfo(it) }
     }
+
+    void executeOnNode(Node node) {
+        // Implement logic to schedule this job to be executed on the specified node
+    }
 }
+
 
 
