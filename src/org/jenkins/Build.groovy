@@ -25,8 +25,9 @@ class Build {
         return build ? build.duration : 0
     }
 
-    long getTimestamp() {
-        return build ? build.timestamp : 0
+    String getTimestamp() {
+        def date = build ? new Date(build.timestamp) : null
+        return date ? date.toString() : "Timestamp not available"
     }
 
     List<String> getCauses() {
@@ -46,10 +47,14 @@ class Build {
 
     Map<String, Object> getAgentProperties() {
         def agentName = getAgent()
-        def node = new Node(agentName)
-        return node.getNodeProperties()
+        if (agentName) {
+            def node = new Node(agentName)
+            return node.getNodeProperties()
+        }
+        return [:]
     }
 }
+
 
 
 
