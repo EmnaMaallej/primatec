@@ -2,14 +2,12 @@ package org.jenkins
 
 import hudson.model.Job
 import hudson.model.Run
-import org.jenkinsci.plugins.workflow.job.WorkflowJob
 import hudson.model.ParametersAction
 import hudson.model.StringParameterValue
-
 import jenkins.model.Jenkins
 
 class Job {
-    private hudson.model.Job job
+    private Job job
 
     Job(String jobName) {
         this.job = Jenkins.instance.getItemByFullName(jobName)
@@ -20,7 +18,8 @@ class Job {
     }
 
     String getJobClass() {
-        return job.class.simpleName
+        return job ? job.class.simpleName : "Class not found"
+    }
 
     String getDescription() {
         return job ? job.description : "Job not found"
@@ -29,6 +28,20 @@ class Job {
     int getBuildCount() {
         return job ? job.builds.size() : 0
     }
+
+    boolean isDisabled() {
+        return job ? job.disabled : false
+    }
+
+    List<Map<String, String>> getBuildParameters(int buildNumber) {
+        def build = job ? job.getBuildByNumber(buildNumber) : null
+        def params = build?.actions.find { it instanceof ParametersAction }?.parameters ?: []
+        return params.collect { param ->
+            [name: param.name, value: param instanceof StringParameterValue ? param.value : 'Non-string parameter']
+        }
+    }
+}
+
 
     boolean isDisabled() {
         return job ? job.isDisabled() : false
