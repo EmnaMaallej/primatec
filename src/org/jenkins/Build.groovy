@@ -26,8 +26,8 @@ class Build {
     }
 
     String getTimestamp() {
-        def date = build ? new Date(build.timestamp) : null
-        return date ? date.toString() : "Timestamp not available"
+        def timestamp = build?.timestamp
+        return timestamp ? new Date(timestamp).toString() : "Timestamp not available"
     }
 
     List<String> getCauses() {
@@ -54,6 +54,7 @@ class Build {
         return [:]
     }
 }
+
 
 
 
