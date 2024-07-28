@@ -51,10 +51,23 @@ class JobInfo implements JenkinsEntity {
         return jobs.collect { new JobInfo(it) }
     }
 
-    void executeOnNode(Node node) {
-        // Implement logic to schedule this job to be executed on the specified node
+    // Method to schedule this job to be executed on the specified node
+    void scheduleBuildOnNode(Node node) {
+        def jenkins = Jenkins.instance
+        def jobToRun = jenkins.getItemByFullName(this.getName(), Job.class)
+
+        if (jobToRun instanceof WorkflowJob) {
+            // Schedule the build with node restriction
+            def parametersAction = new ParametersAction([
+                new StringParameterValue("NODE_NAME", node.getName())
+            ])
+            jobToRun.scheduleBuild2(0, parametersAction)
+        } else {
+            // Handle other types of jobs if necessary
+        }
     }
 }
+
 
 
 
