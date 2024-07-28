@@ -1,9 +1,5 @@
-package org.jenkins
 
-import hudson.model.AbstractProject
 import hudson.model.Run
-import hudson.model.Result
-
 import jenkins.model.Jenkins
 
 class Build {
@@ -35,8 +31,10 @@ class Build {
     }
 
     Map getParameters() {
-        return build ? build.getAction(hudson.model.ParametersAction)?.parameters.collectEntries {
+        def parametersAction = build ? build.getAction(hudson.model.ParametersAction) : null
+        return parametersAction ? parametersAction.parameters.collectEntries {
             [(it.name): it.value]
         } : [:]
     }
 }
+
