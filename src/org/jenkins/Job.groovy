@@ -1,12 +1,13 @@
 package org.jenkins
 
-import hudson.model.Job as HudsonJob
+import hudson.model.Job
+import hudson.model.Run
 import hudson.model.ParametersAction
 import hudson.model.StringParameterValue
 import jenkins.model.Jenkins
 
 class Job {
-    private HudsonJob job
+    private Job job
 
     Job(String jobName) {
         this.job = Jenkins.instance.getItemByFullName(jobName)
@@ -39,5 +40,20 @@ class Job {
             [name: param.name, value: param instanceof StringParameterValue ? param.value : 'Non-string parameter']
         }
     }
+
+    List<Map<String, Object>> getAllBuildsInfo() {
+        def builds = job ? job.builds : []
+        return builds.collect { build ->
+            [
+                number: build.number,
+                result: build.result.toString(),
+                duration: build.duration,
+                timestamp: build.timestamp,
+                causes: build.causes.collect { it.toString() },
+                parameters: getBuildParameters(build.number)
+            ]
+        }
+    }
 }
+
 
