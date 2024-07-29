@@ -1,6 +1,7 @@
 package org.jenkins
 
 import hudson.model.Run
+import hudson.model.Node
 import jenkins.model.Jenkins
 import java.text.SimpleDateFormat
 
@@ -39,6 +40,13 @@ class Build {
             [name: param.name, value: param instanceof hudson.model.StringParameterValue ? param.value : 'Non-string parameter']
         }
     }
+
+    String getNodeName() {
+        def node = build?.builtOn
+        return node ? node.getDisplayName() : "Node not available"
+    }
+}
+
 
     String getNodeName() {
         return build ? build.getBuiltOnStr() : "Node not available"
