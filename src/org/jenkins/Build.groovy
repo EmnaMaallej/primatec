@@ -1,60 +1,61 @@
 package org.jenkins
 
+import hudson.model.Job
 import hudson.model.Run
-import hudson.model.Node
+import hudson.model.ParametersAction
+import hudson.model.StringParameterValue
 import jenkins.model.Jenkins
-import java.text.SimpleDateFormat
 
-class Build {
-    private Run build
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+class Job {
+    private Job job
 
-    // Constructor
-    Build(String jobName, int buildNumber) {
-        def job = Jenkins.instance.getItemByFullName(jobName)
-        this.build = job ? job.getBuildByNumber(buildNumber) : null
+    Job(String jobName) {
+        this.job = Jenkins.instance.getItemByFullName(jobName)
     }
 
-    // Methods
-    int getNumber() {
-        return build ? build.number : -1
+    String getName() {
+        return job ? job.name : "Job not found"
     }
 
-    String getResult() {
-        return build ? build.result.toString() : "Unknown"
+    String getJobClass() {
+        return job ? job.class.simpleName : "Class not found"
     }
 
-    long getDuration() {
-        return build ? build.duration : 0
+    String getDescription() {
+        return job ? job.description : "Job not found"
     }
 
-    String getFormattedTimestamp() {
-        return build ? dateFormat.format(new Date(build.getTimeInMillis())) : "Timestamp not available"
+    int getBuildCount() {
+        return job ? job.builds.size() : 0
     }
 
-    String getNodeName() {
-        if (build) {
-            def executor = build.executor
-            if (executor) {
-                def node = executor.getOwner().getNode()
-                return node ? node.getDisplayName() : "Node not available"
-            }
-            return "Executor not available"
-        }
-        return "Build not available"
+    boolean isDisabled() {
+        return job ? job.disabled : false
     }
 
-    List<String> getCauses() {
-        return build ? build.causes.collect { it.toString() } : []
-    }
-
-    List<Map<String, String>> getParameters() {
-        def params = build?.actions.find { it instanceof hudson.model.ParametersAction }?.parameters ?: []
+    List<Map<String, String>> getBuildParameters(int buildNumber) {
+        def build = job ? job.getBuildByNumber(buildNumber) : null
+        def params = build?.actions.find { it instanceof ParametersAction }?.parameters ?: []
         return params.collect { param ->
-            [name: param.name, value: param instanceof hudson.model.StringParameterValue ? param.value : 'Non-string parameter']
+            [name: param.name, value: param instanceof StringParameterValue ? param.value : 'Non-string parameter']
+        }
+    }
+
+    List<Map<String, Object>> getAllBuildsInfo() {
+        def builds = job ? job.builds : []
+        return builds.collect { build ->
+            [
+                number: build.number,
+                result: build.result.toString(),
+                duration: build.duration,
+                timestamp: build.timestamp,
+                causes: build.causes.collect { it.toString() },
+                parameters: getBuildParameters(build.number)
+            ]
         }
     }
 }
+
 
 
 
