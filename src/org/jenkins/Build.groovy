@@ -31,6 +31,10 @@ class Build {
         return build ? dateFormat.format(new Date(build.getTimeInMillis())) : "Timestamp not available"
     }
 
+    String getNodeName() {
+        return build.getBuiltOnStr() 
+    }
+
     List<String> getCauses() {
         return build ? build.causes.collect { it.toString() } : []
     }
