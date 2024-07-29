@@ -1,4 +1,8 @@
+package org.jenkins
+
+import hudson.model.Node as HudsonNode
 import jenkins.model.Jenkins
+
 
 class Nodes {
     String name
