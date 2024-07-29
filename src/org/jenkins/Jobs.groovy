@@ -9,7 +9,6 @@ import hudson.model.Node
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
 
 
-
 class Jobs {
     String jobName
 
@@ -30,10 +29,9 @@ class Jobs {
         def builds = getAllBuilds()
         def buildProperties = []
         builds.each { build ->
-            def node = build.getBuiltOn()
-            def nodeName = node ? node.getNodeName() : "Unknown Node"
-            def nodeDetails = node ? new Nodes(nodeName) : new Nodes("")
-
+            def nodeName = build.getBuiltOnStr() ?: "Unknown Node"
+            def nodeDetails = new Nodes(nodeName)
+            
             def properties = [
                 "Build Number": build.number,
                 "Status": build.result,
@@ -50,3 +48,4 @@ class Jobs {
         return buildProperties
     }
 }
+
