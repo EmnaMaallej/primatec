@@ -1,3 +1,9 @@
+package org.jenkins
+
+import hudson.model.Job as HudsonJob
+import hudson.model.Run
+import hudson.model.ParametersAction
+import hudson.model.StringParameterValue
 import jenkins.model.Jenkins
 
 class Jobs {
