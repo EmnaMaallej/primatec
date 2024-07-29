@@ -1,60 +1,43 @@
-package org.jenkins
-
-import hudson.model.Job
+// vars/Build.groovy
 import hudson.model.Run
-import hudson.model.ParametersAction
-import hudson.model.StringParameterValue
 import jenkins.model.Jenkins
 
-class Job {
-    private Job job
+class Build {
+    private Run build
 
-    Job(String jobName) {
-        this.job = Jenkins.instance.getItemByFullName(jobName)
+    Build(String jobName, int buildNumber) {
+        def job = Jenkins.instance.getItemByFullName(jobName)
+        this.build = job ? job.getBuildByNumber(buildNumber) : null
     }
 
-    String getName() {
-        return job ? job.name : "Job not found"
+    int getNumber() {
+        return build ? build.number : -1
     }
 
-    String getJobClass() {
-        return job ? job.class.simpleName : "Class not found"
+    String getResult() {
+        return build ? build.result.toString() : "Build not found"
     }
 
-    String getDescription() {
-        return job ? job.description : "Job not found"
+    long getDuration() {
+        return build ? build.duration : 0L
     }
 
-    int getBuildCount() {
-        return job ? job.builds.size() : 0
+    Date getTimestamp() {
+        return build ? new Date(build.timeInMillis) : null
     }
 
-    boolean isDisabled() {
-        return job ? job.disabled : false
+    String getCauses() {
+        return build ? build.causes.collect { it.shortDescription }.join(', ') : "Build not found"
     }
 
-    List<Map<String, String>> getBuildParameters(int buildNumber) {
-        def build = job ? job.getBuildByNumber(buildNumber) : null
-        def params = build?.actions.find { it instanceof ParametersAction }?.parameters ?: []
-        return params.collect { param ->
-            [name: param.name, value: param instanceof StringParameterValue ? param.value : 'Non-string parameter']
-        }
-    }
-
-    List<Map<String, Object>> getAllBuildsInfo() {
-        def builds = job ? job.builds : []
-        return builds.collect { build ->
-            [
-                number: build.number,
-                result: build.result.toString(),
-                duration: build.duration,
-                timestamp: build.timestamp,
-                causes: build.causes.collect { it.toString() },
-                parameters: getBuildParameters(build.number)
-            ]
-        }
+    Map getParameters() {
+        def parametersAction = build ? build.getAction(hudson.model.ParametersAction) : null
+        return parametersAction ? parametersAction.parameters.collectEntries {
+            [(it.name): it.value]
+        } : [:]
     }
 }
+
 
 
 
