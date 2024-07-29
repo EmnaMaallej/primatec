@@ -1,6 +1,8 @@
 package org.jenkins
 
 import hudson.model.Run
+import hudson.model.Node
+
 import jenkins.model.Jenkins
 import java.text.SimpleDateFormat
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
