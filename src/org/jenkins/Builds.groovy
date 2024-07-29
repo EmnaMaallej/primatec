@@ -2,63 +2,48 @@ package org.jenkins
 import jenkins.model.Jenkins
 import hudson.model.Run
 
-class Builds {
-    int number
-    Jobs job
 
-    Builds(int number, Jobs job) {
-        this.number = number
-        this.job = job
+class Builds {
+    String jobName
+    int buildNumber
+
+    Builds(String jobName, int buildNumber) {
+        this.jobName = jobName
+        this.buildNumber = buildNumber
     }
 
-    def getBuildInstance() {
-        return job.getJobInstance().getBuildByNumber(number)
+    def getJob() {
+        return Jenkins.instance.getItem(jobName)
+    }
+
+    def getBuild() {
+        def job = getJob()
+        return job ? job.getBuildByNumber(buildNumber) : null
     }
 
     def getBuildNumber() {
-        return getBuildInstance().number
+        def build = getBuild()
+        return build ? build.number : "Build not found."
     }
 
-    def getResult() {
-        return getBuildInstance().result.toString()
+    def getBuildStatus() {
+        def build = getBuild()
+        return build ? build.result : "Build not found."
     }
 
-    def getDuration() {
-        return getBuildInstance().duration
+    def getBuildDuration() {
+        def build = getBuild()
+        return build ? build.durationString : "Build not found."
     }
 
-    def getTimestamp() {
-        return getBuildInstance().timestamp
+    def getBuildTimestamp() {
+        def build = getBuild()
+        return build ? build.timestampString : "Build not found."
     }
 
-    def getBuiltOn() {
-        return getBuildInstance().builtOnStr
-    }
-
-    def getChangeSet() {
-        return getBuildInstance().changeSet
-    }
-
-    def getCulprits() {
-        return getBuildInstance().culprits.collect { it.fullName }
-    }
-
-    def getNodeProperties() {
-        def nodeName = getBuiltOn()
-        def node = new Nodes(nodeName)
-        return node.getAllProperties()
-    }
-
-    def getAllProperties() {
-        return [
-            buildNumber  : getBuildNumber(),
-            result       : getResult(),
-            duration     : getDuration(),
-            timestamp    : getTimestamp(),
-            builtOn      : getBuiltOn(),
-            changeSet    : getChangeSet(),
-            culprits     : getCulprits(),
-            nodeProperties: getNodeProperties()
-        ]
+    def getBuildParameters() {
+        def build = getBuild()
+        return build ? build.buildVariables : "Build not found."
     }
 }
+
