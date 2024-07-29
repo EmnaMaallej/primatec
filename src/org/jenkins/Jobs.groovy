@@ -7,6 +7,8 @@ import hudson.model.StringParameterValue
 import jenkins.model.Jenkins
 import hudson.model.Node
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
+import hudson.model.Action 
+import hudson.model.ModelObject
 
 
 class Jobs {
