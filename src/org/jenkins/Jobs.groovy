@@ -7,61 +7,44 @@ import hudson.model.StringParameterValue
 import jenkins.model.Jenkins
 
 
+
 class Jobs {
     String jobName
-    def job
 
     Jobs(String jobName) {
         this.jobName = jobName
-        this.job = Jenkins.instance.getItemByFullName(jobName)
     }
 
-    
-    Map getAllProperties() {
-        def properties = [:]
-        properties['displayName'] = job?.displayName
-        properties['description'] = job?.description
-        properties['url'] = job?.absoluteUrl
-        properties['builds'] = job?.builds?.collect { build ->
-            [
-                'buildNumber': build.number,
-                'result': build.result.toString(),
-                'duration': build.duration,
-                'node': build.builtOnStr,
-                'nodeProperties': new Nodes(build.builtOnStr)?.getAllProperties()
+    def getJob() {
+        return Jenkins.instance.getItem(jobName)
+    }
+
+    def getAllBuilds() {
+        def job = getJob()
+        return job ? job.builds : []
+    }
+
+    def getBuildsWithProperties() {
+        def builds = getAllBuilds()
+        def buildProperties = []
+        builds.each { build ->
+            def buildNode = build.getBuiltOnStr()
+            def node = new Nodes(buildNode)
+            def properties = [
+                "Build Number": build.number,
+                "Status": build.result,
+                "Duration": build.durationString,
+                "Timestamp": build.timestampString,
+                "Node Name": buildNode,
+                "Node Description": node.getNodeDescription(),
+                "Executors": node.getNumExecutors(),
+                "Remote FS": node.getRemoteFS(),
+                "Labels": node.getLabels()
             ]
+            buildProperties.add(properties)
         }
-        return properties
-    }
-
-   
-    Map getBuildProperties(int buildNumber) {
-        def build = job?.getBuildByNumber(buildNumber)
-        def properties = [:]
-        if (build) {
-            properties['result'] = build.result.toString()
-            properties['duration'] = build.duration
-            properties['node'] = build.builtOnStr
-            properties['nodeProperties'] = new Nodes(build.builtOnStr)?.getAllProperties()
-        } else {
-            properties['error'] = "Build number ${buildNumber} not found."
-        }
-        return properties
-    }
-
-    
-    List getAllBuildsAndNodeProperties() {
-        def builds = []
-        job?.builds?.each { build ->
-            def buildProperties = [:]
-            buildProperties['buildNumber'] = build.number
-            buildProperties['result'] = build.result.toString()
-            buildProperties['duration'] = build.duration
-            buildProperties['node'] = build.builtOnStr
-            buildProperties['nodeProperties'] = new Nodes(build.builtOnStr)?.getAllProperties()
-            builds << buildProperties
-        }
-        return builds
+        return buildProperties
     }
 }
+
 
