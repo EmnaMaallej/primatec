@@ -5,59 +5,42 @@ import jenkins.model.Jenkins
 
 
 class Nodes {
-    String name
+    String nodeName
+    def node
 
-    Nodes(String name) {
-        this.name = name
+    Nodes(String nodeName) {
+        this.nodeName = nodeName
+        this.node = Jenkins.instance.getNode(nodeName)
     }
 
-    def getNodeInstance() {
-        return Jenkins.instance.getNode(name)
+    // Example method to get node display name
+    String getDisplayName() {
+        return node?.displayName
     }
 
-    def getName() {
-        return getNodeInstance().displayName
+    // Example method to get node description
+    String getDescription() {
+        return node?.description
     }
 
-    def isIdle() {
-        return getNodeInstance().isIdle()
+    // Example method to get node label string
+    String getLabelString() {
+        return node?.labelString
     }
 
-    def getNumExecutors() {
-        return getNodeInstance().numExecutors
+    // Example method to get the node status
+    String getStatus() {
+        return node?.toComputer()?.isOffline() ? "Offline" : "Online"
     }
 
-    def getMode() {
-        return getNodeInstance().mode.toString()
-    }
-
-    def getLabels() {
-        return getNodeInstance().assignedLabels
-    }
-
-    def getDescription() {
-        return getNodeInstance().nodeDescription
-    }
-
-    def getOfflineCause() {
-        return getNodeInstance().getOfflineCauseReason()
-    }
-
-    def getLaunchTimeout() {
-        return getNodeInstance().launchTimeoutMilliseconds
-    }
-
-    def getAllProperties() {
-        return [
-            name            : getName(),
-            idle            : isIdle(),
-            numExecutors    : getNumExecutors(),
-            mode            : getMode(),
-            labels          : getLabels(),
-            description     : getDescription(),
-            offlineCause    : getOfflineCause(),
-            launchTimeout   : getLaunchTimeout()
-        ]
+    // Method to get all properties
+    Map getAllProperties() {
+        def properties = [:]
+        properties['displayName'] = getDisplayName()
+        properties['description'] = getDescription()
+        properties['labelString'] = getLabelString()
+        properties['status'] = getStatus()
+        return properties
     }
 }
 
