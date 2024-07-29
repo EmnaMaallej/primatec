@@ -2,11 +2,8 @@ package org.jenkins
 
 import hudson.model.Run
 import hudson.model.Node
-
 import jenkins.model.Jenkins
 import java.text.SimpleDateFormat
-import org.jenkinsci.plugins.workflow.job.WorkflowJob
-
 
 class Build {
     private Run build
@@ -37,8 +34,12 @@ class Build {
 
     String getNodeName() {
         if (build) {
-            def node = build.builtOn
-            return node ? node.getNodeName() : "Node not available"
+            def executor = build.executor
+            if (executor) {
+                def node = executor.getOwner().getNode()
+                return node ? node.getDisplayName() : "Node not available"
+            }
+            return "Executor not available"
         }
         return "Build not available"
     }
@@ -54,6 +55,7 @@ class Build {
         }
     }
 }
+
 
 
 
