@@ -5,6 +5,7 @@ import hudson.model.Run
 import hudson.model.ParametersAction
 import hudson.model.StringParameterValue
 import jenkins.model.Jenkins
+import hudson.model.Node
 
 
 
@@ -48,6 +49,3 @@ class Jobs {
         return buildProperties
     }
 }
-
-
-
