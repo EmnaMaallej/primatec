@@ -1,49 +1,54 @@
 package org.jenkins
 
-import hudson.model.Run
-import hudson.model.Node
 import jenkins.model.Jenkins
-import java.text.SimpleDateFormat
 
 class Build {
-    private Run build
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    private def build
 
-    Build(String jobName, int buildNumber) {
-        def job = Jenkins.instance.getItemByFullName(jobName)
-        this.build = job ? job.getBuildByNumber(buildNumber) : null
+    Build(def build) {
+        this.build = build
     }
 
-    int getNumber() {
-        return build ? build.number : -1
+    String getNumber() {
+        return build ? build.number.toString() : "Build not found"
     }
 
     String getResult() {
-        return build ? build.result.toString() : "Unknown"
+        return build ? build.result.toString() : "Result not available"
     }
 
     long getDuration() {
         return build ? build.duration : 0
     }
 
-    String getFormattedTimestamp() {
-        return build ? dateFormat.format(new Date(build.getTimeInMillis())) : "Timestamp not available"
+    Date getTimestamp() {
+        return build ? new Date(build.timestamp) : new Date()
     }
 
     List<String> getCauses() {
         return build ? build.causes.collect { it.toString() } : []
     }
 
-    List<Map<String, String>> getParameters() {
-        def params = build?.actions.find { it instanceof hudson.model.ParametersAction }?.parameters ?: []
-        return params.collect { param ->
-            [name: param.name, value: param instanceof hudson.model.StringParameterValue ? param.value : 'Non-string parameter']
-        }
+    Map<String, Object> getParameters() {
+        return build ? build.buildVariableResolver?.resolveAll() : [:]
     }
 
-    String getNodeName() {
-        def node = build?.builtOn
-        return node ? node.getDisplayName() : "Node not available"
+    Node getNode() {
+        def nodeName = build?.builtOn?.name // Adjust this to fit the correct property or method to retrieve the node name
+        return nodeName ? new Node(nodeName) : null
+    }
+
+    Map<String, Object> getBuildDetails() {
+        return [
+            "Number": getNumber(),
+            "Result": getResult(),
+            "Duration": getDuration(),
+            "Timestamp": getTimestamp(),
+            "Causes": getCauses(),
+            "Parameters": getParameters(),
+            "Node": getNode()?.getNodeProperties()
+        ]
     }
 }
+
 
