@@ -47,8 +47,3 @@ class Build {
     }
 }
 
-
-    String getNodeName() {
-        return build ? build.getBuiltOnStr() : "Node not available"
-    }
-}
