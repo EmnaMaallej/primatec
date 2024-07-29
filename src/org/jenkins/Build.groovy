@@ -1,4 +1,3 @@
-// vars/Build.groovy
 import hudson.model.Run
 import jenkins.model.Jenkins
 
