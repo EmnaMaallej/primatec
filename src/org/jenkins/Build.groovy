@@ -3,6 +3,8 @@ package org.jenkins
 import hudson.model.Run
 import jenkins.model.Jenkins
 import java.text.SimpleDateFormat
+import org.jenkinsci.plugins.workflow.job.WorkflowJob
+
 
 class Build {
     private Run build
@@ -32,8 +34,11 @@ class Build {
     }
 
     String getNodeName() {
-        // For Pipeline builds, use the build.getBuiltOnStr() method
-        return build ? build.getBuiltOnStr() : "Node not available"
+        if (build) {
+            def node = build.builtOn
+            return node ? node.getNodeName() : "Node not available"
+        }
+        return "Build not available"
     }
 
     List<String> getCauses() {
@@ -47,6 +52,7 @@ class Build {
         }
     }
 }
+
 
 
 
