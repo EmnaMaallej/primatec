@@ -28,23 +28,26 @@ class Jobs {
         def builds = getAllBuilds()
         def buildProperties = []
         builds.each { build ->
-            def buildNode = build.getBuiltOnStr()
-            def node = new Nodes(buildNode)
+            def node = build.getBuiltOn()
+            def nodeName = node ? node.getNodeName() : "Unknown Node"
+            def nodeDetails = node ? new Nodes(nodeName) : new Nodes("")
+
             def properties = [
                 "Build Number": build.number,
                 "Status": build.result,
                 "Duration": build.durationString,
                 "Timestamp": build.timestampString,
-                "Node Name": buildNode,
-                "Node Description": node.getNodeDescription(),
-                "Executors": node.getNumExecutors(),
-                "Remote FS": node.getRemoteFS(),
-                "Labels": node.getLabels()
+                "Node Name": nodeName,
+                "Node Description": nodeDetails.getNodeDescription(),
+                "Executors": nodeDetails.getNumExecutors(),
+                "Remote FS": nodeDetails.getRemoteFS(),
+                "Labels": nodeDetails.getLabels()
             ]
             buildProperties.add(properties)
         }
         return buildProperties
     }
 }
+
 
 
