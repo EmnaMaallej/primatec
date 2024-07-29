@@ -1,54 +1,52 @@
 package org.jenkins
 
+import hudson.model.Run
 import jenkins.model.Jenkins
+import java.text.SimpleDateFormat
 
 class Build {
-    private def build
+    private Run build
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-    Build(def build) {
-        this.build = build
+    // Constructor
+    Build(String jobName, int buildNumber) {
+        def job = Jenkins.instance.getItemByFullName(jobName)
+        this.build = job ? job.getBuildByNumber(buildNumber) : null
     }
 
-    String getNumber() {
-        return build ? build.number.toString() : "Build not found"
+    // Methods
+    int getNumber() {
+        return build ? build.number : -1
     }
 
     String getResult() {
-        return build ? build.result.toString() : "Result not available"
+        return build ? build.result.toString() : "Unknown"
     }
 
     long getDuration() {
         return build ? build.duration : 0
     }
 
-    Date getTimestamp() {
-        return build ? new Date(build.timestamp) : new Date()
+    String getFormattedTimestamp() {
+        return build ? dateFormat.format(new Date(build.getTimeInMillis())) : "Timestamp not available"
     }
 
     List<String> getCauses() {
         return build ? build.causes.collect { it.toString() } : []
     }
 
-    Map<String, Object> getParameters() {
-        return build ? build.buildVariableResolver?.resolveAll() : [:]
+    List<Map<String, String>> getParameters() {
+        def params = build?.actions.find { it instanceof hudson.model.ParametersAction }?.parameters ?: []
+        return params.collect { param ->
+            [name: param.name, value: param instanceof hudson.model.StringParameterValue ? param.value : 'Non-string parameter']
+        }
     }
 
-    Node getNode() {
-        def nodeName = build?.builtOn?.name // Adjust this to fit the correct property or method to retrieve the node name
-        return nodeName ? new Node(nodeName) : null
-    }
-
-    Map<String, Object> getBuildDetails() {
-        return [
-            "Number": getNumber(),
-            "Result": getResult(),
-            "Duration": getDuration(),
-            "Timestamp": getTimestamp(),
-            "Causes": getCauses(),
-            "Parameters": getParameters(),
-            "Node": getNode()?.getNodeProperties()
-        ]
+    String getNodeName() {
+        def node = build?.builtOn
+        return node ? node.getDisplayName() : "Node not available"
     }
 }
+
 
 
