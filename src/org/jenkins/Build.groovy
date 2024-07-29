@@ -32,7 +32,8 @@ class Build {
     }
 
     String getNodeName() {
-        return build.getBuiltOnStr() 
+        def node = build?.builtOn
+        return node ? node.getDisplayName() : "Node not available"
     }
 
     List<String> getCauses() {
@@ -45,12 +46,8 @@ class Build {
             [name: param.name, value: param instanceof hudson.model.StringParameterValue ? param.value : 'Non-string parameter']
         }
     }
-
-    String getNodeName() {
-        def node = build?.builtOn
-        return node ? node.getDisplayName() : "Node not available"
-    }
 }
+
 
 
 
