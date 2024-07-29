@@ -26,7 +26,7 @@ class Build {
     }
 
     String getFormattedTimestamp() {
-        return build ? dateFormat.format(new Date(build.timestamp)) : "Timestamp not available"
+        return build ? dateFormat.format(new Date(build.getTimeInMillis())) : "Timestamp not available"
     }
 
     List<String> getCauses() {
@@ -44,9 +44,3 @@ class Build {
         return build ? build.getBuiltOnStr() : "Node not available"
     }
 }
-
-
-
-
-
-
