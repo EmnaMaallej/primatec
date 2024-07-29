@@ -32,8 +32,8 @@ class Build {
     }
 
     String getNodeName() {
-        def node = build?.builtOn
-        return node ? node.getDisplayName() : "Node not available"
+        // For Pipeline builds, use the build.getBuiltOnStr() method
+        return build ? build.getBuiltOnStr() : "Node not available"
     }
 
     List<String> getCauses() {
@@ -47,6 +47,7 @@ class Build {
         }
     }
 }
+
 
 
 
