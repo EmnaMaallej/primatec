@@ -1,12 +1,12 @@
 package org.jenkins
 
 import hudson.model.Run
-import hudson.model.ParametersAction
-import hudson.model.StringParameterValue
 import jenkins.model.Jenkins
+import java.text.SimpleDateFormat
 
 class Build {
     private Run build
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
     Build(String jobName, int buildNumber) {
         def job = Jenkins.instance.getItemByFullName(jobName)
@@ -18,16 +18,15 @@ class Build {
     }
 
     String getResult() {
-        return build ? build.result.toString() : "Result not found"
+        return build ? build.result.toString() : "Unknown"
     }
 
     long getDuration() {
         return build ? build.duration : 0
     }
 
-    String getTimestamp() {
-        def timestamp = build?.timestamp
-        return timestamp ? new Date(timestamp).toString() : "Timestamp not available"
+    String getFormattedTimestamp() {
+        return build ? dateFormat.format(new Date(build.timestamp)) : "Timestamp not available"
     }
 
     List<String> getCauses() {
@@ -35,25 +34,17 @@ class Build {
     }
 
     List<Map<String, String>> getParameters() {
-        def params = build?.actions.find { it instanceof ParametersAction }?.parameters ?: []
+        def params = build?.actions.find { it instanceof hudson.model.ParametersAction }?.parameters ?: []
         return params.collect { param ->
-            [name: param.name, value: param instanceof StringParameterValue ? param.value : 'Non-string parameter']
+            [name: param.name, value: param instanceof hudson.model.StringParameterValue ? param.value : 'Non-string parameter']
         }
-    }
-    
-    String getAgent() {
-        return build ? build.executor?.node?.name : "Agent not found"
     }
 
-    Map<String, Object> getAgentProperties() {
-        def agentName = getAgent()
-        if (agentName) {
-            def node = new Node(agentName)
-            return node.getNodeProperties()
-        }
-        return [:]
+    String getNodeName() {
+        return build ? build.getBuiltOnStr() : "Node not available"
     }
 }
+
 
 
 
