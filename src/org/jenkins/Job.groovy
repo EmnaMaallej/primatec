@@ -13,7 +13,7 @@ class Job {
         this.job = Jenkins.instance.getItemByFullName(jobName)
     }
 
-    String getName() {
+    String gettName() {
         return job ? job.name : "Job not found"
     }
 
