@@ -1,37 +1,67 @@
 package org.jenkins
 
+import hudson.model.Run
+import jenkins.model.Jenkins
+
 class CentralManager {
     List<Node> nodes
     List<Job> jobs
     List<Build> builds
 
-    CentralManager(List<String> nodeNames, List<String> jobNames) {
+    CentralManager(List<String> nodeNames, List<String> jobNames, List<Integer> buildNumbers) {
         this.nodes = nodeNames.collect { new Node(it) }
         this.jobs = jobNames.collect { new Job(it) }
         this.builds = []
+
         jobs.each { job ->
-            builds.addAll(job.getAllBuildsInfo())
+            buildNumbers.each { buildNumber ->
+                this.builds.add(new Build(job.name, buildNumber))
+            }
         }
     }
 
-    def getNodeJobBuildInfo() {
+    List<Map<String, Object>> getNodeDetails() {
         nodes.collect { node ->
             [
-                nodeName: node.name,
-                nodeDetails: node.getNodeDetails(),
-                jobs: jobs.collect { job ->
-                    [
-                        jobName: job.name,
-                        jobDetails: job.getJobDetails(),
-                        builds: builds.findAll { it.jobName == job.name }.collect { build ->
-                            [
-                                buildNumber: build.number,
-                                buildDetails: build.getBuildDetails()
-                            ]
-                        }
-                    ]
-                }
+                name: node.getName(),
+                online: node.isOnline(),
+                temporarilyOffline: node.isTemporarilyOffline(),
+                idle: node.isIdle(),
+                numberOfExecutors: node.getNumberOfExecutors(),
+                executors: node.getExecutors(),
+                monitorData: node.getMonitorData(),
+                connectTime: node.getConnectTime(),
+                launchTime: node.getLaunchTime(),
+                offlineCause: node.getOfflineCause(),
+                nodeProperties: node.getNodeProperties()
+            ]
+        }
+    }
+
+    List<Map<String, Object>> getJobDetails() {
+        jobs.collect { job ->
+            [
+                name: job.getName(),
+                jobClass: job.getJobClass(),
+                description: job.getDescription(),
+                buildCount: job.getBuildCount(),
+                disabled: job.isDisabled(),
+                allBuildsInfo: job.getAllBuildsInfo()
+            ]
+        }
+    }
+
+    List<Map<String, Object>> getBuildDetails() {
+        builds.collect { build ->
+            [
+                number: build.getNumber(),
+                result: build.getResult(),
+                duration: build.getDuration(),
+                timestamp: build.getTimestamp(),
+                causes: build.getCauses(),
+                parameters: build.getParameters()
             ]
         }
     }
 }
+
