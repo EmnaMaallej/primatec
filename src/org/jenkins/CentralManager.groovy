@@ -41,7 +41,7 @@ class CentralManager {
     List<Map<String, Object>> getJobDetails() {
         jobs.collect { job ->
             [
-                name: job.gettName(),
+                name: job.getName(),
                 jobClass: job.getJobClass(),
                 description: job.getDescription(),
                 buildCount: job.getBuildCount(),
