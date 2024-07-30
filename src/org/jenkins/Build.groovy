@@ -1,3 +1,5 @@
+package org.jenkins
+
 import hudson.model.Run
 import jenkins.model.Jenkins
 
