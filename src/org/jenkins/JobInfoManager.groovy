@@ -1,47 +1,74 @@
 package org.jenkins
 
 import jenkins.model.Jenkins
+import hudson.model.Job
+import hudson.model.Run
+import hudson.model.Node
 
 class JobInfoManager {
-    private String jobName
-    private Job job
+    String jobName
 
     JobInfoManager(String jobName) {
         this.jobName = jobName
-        this.job = new Job(jobName)
     }
 
-    Map<String, Object> getCompleteJobDetails() {
-        def jobDetails = job.getJobProperties()
-        def buildsInfo = getAllBuildsInfo()
+    Map getCompleteJobDetails() {
+        def jobDetails = [:]
+        def job = Jenkins.instance.getJob(jobName)
+        
+        if (job) {
+            jobDetails['Job Details'] = getJobProperties(job)
+            jobDetails['Builds Info'] = getAllBuildsInfo(job)
+        } else {
+            println "Job ${jobName} not found."
+        }
 
+        return jobDetails
+    }
+
+    Map getJobProperties(Job job) {
         return [
-            'Job Details': jobDetails,
-            'Builds Info': buildsInfo
+            'name': job.name,
+            'url': job.url,
+            'description': job.description,
+            'displayName': job.displayName,
+            'fullName': job.fullName,
+            'buildable': job.buildable,
+            'inQueue': job.inQueue
         ]
     }
 
-    List<Map<String, Object>> getAllBuildsInfo() {
-        def builds = job?.job?.builds ?: []
-        return builds.collect { build ->
-            [
-                number: build?.number,
-                result: build?.result?.toString(),
-                duration: build?.duration,
-                timestamp: build?.timestamp,
-                causes: build?.causes?.collect { it?.toString() },
-                parameters: job.getBuildParameters(build?.number),
-                'Node Details': getNodeDetails(build)
-            ]
+    List<Map> getAllBuildsInfo(Job job) {
+        def buildsInfo = []
+        job.builds.each { Run build ->
+            def buildInfo = [:]
+            buildInfo['number'] = build.number
+            buildInfo['result'] = build.result
+            buildInfo['duration'] = build.duration
+            buildInfo['timestamp'] = build.timestamp
+            buildInfo['causes'] = build.causes.toString()
+            buildInfo['parameters'] = build.getAction(hudson.model.ParametersAction)?.parameters?.collectEntries { [(it.name): it.value] }
+            buildInfo['Node Details'] = getNodeDetails(build)
+            buildsInfo << buildInfo
         }
+        return buildsInfo
     }
 
-    private Map<String, Object> getNodeDetails(def build) {
-        if (build?.builtOn) {
-            def node = new Node(build.builtOn.getNodeName())
-            return node.getNodeProperties()
+    Map getNodeDetails(Run build) {
+        def nodeDetails = [:]
+        def node = build.executor?.owner?.node
+        
+        if (node) {
+            nodeDetails['name'] = node.displayName
+            nodeDetails['numExecutors'] = node.numExecutors
+            nodeDetails['isIdle'] = node.toComputer()?.isIdle()
+            nodeDetails['isOffline'] = node.toComputer()?.isOffline()
+            nodeDetails['labels'] = node.assignedLabels.collect { it.name }
         } else {
-            return [:]
+            println "Node information not available for build ${build.number}."
         }
+
+        return nodeDetails
     }
 }
+
