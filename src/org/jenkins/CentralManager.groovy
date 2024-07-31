@@ -1,6 +1,6 @@
 package org.jenkins
 
-import hudson.model.Run
+import hudson.model.Node
 import jenkins.model.Jenkins
 
 class CentralManager {
@@ -15,7 +15,7 @@ class CentralManager {
 
         jobs.each { job ->
             buildNumbers.each { buildNumber ->
-                this.builds.add(new Build(job.name, buildNumber))
+                this.builds.add(new Build(job.getName(), buildNumber))
             }
         }
     }
@@ -64,5 +64,3 @@ class CentralManager {
         }
     }
 }
-
-
