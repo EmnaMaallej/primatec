@@ -10,7 +10,7 @@ class Node {
         this.node = Jenkins.instance.getNode(nodeName)
     }
 
-    String getName() {
+    String gettName() {
         return node ? node.name : "Node not found"
     }
 
