@@ -4,6 +4,7 @@ import jenkins.model.Jenkins
 import hudson.model.Job
 import hudson.model.Run
 import hudson.model.Node
+import hudson.model.Computer
 
 class JobInfoManager {
     String jobName
@@ -45,7 +46,7 @@ class JobInfoManager {
             buildInfo['number'] = build.number
             buildInfo['result'] = build.result
             buildInfo['duration'] = build.duration
-            buildInfo['timestamp'] = build.timestamp
+            buildInfo['timestamp'] = build.timestampString
             buildInfo['causes'] = build.causes.toString()
             buildInfo['parameters'] = build.getAction(hudson.model.ParametersAction)?.parameters?.collectEntries { [(it.name): it.value] }
             buildInfo['Node Details'] = getNodeDetails(build)
@@ -56,19 +57,19 @@ class JobInfoManager {
 
     Map getNodeDetails(Run build) {
         def nodeDetails = [:]
-        def node = build.executor?.owner?.node
+        def executor = build.executor
         
-        if (node) {
+        if (executor) {
+            def node = executor.getOwner().getNode()
             nodeDetails['name'] = node.displayName
             nodeDetails['numExecutors'] = node.numExecutors
             nodeDetails['isIdle'] = node.toComputer()?.isIdle()
             nodeDetails['isOffline'] = node.toComputer()?.isOffline()
             nodeDetails['labels'] = node.assignedLabels.collect { it.name }
         } else {
-            println "Node information not available for build ${build.number}."
+            println "No executor information available for build ${build.number}."
         }
 
         return nodeDetails
     }
 }
-
