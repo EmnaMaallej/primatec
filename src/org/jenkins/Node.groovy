@@ -30,6 +30,10 @@ class Node {
         return node ? node.numExecutors : 0
     }
 
+    static List<String> getAllNodes() {
+        return Jenkins.instance.nodes.collect { it.displayName }
+    }
+
     List<String> getExecutors() {
         return node ? (0..<node.numExecutors).collect { "Executor ${it + 1}" } : []
     }
