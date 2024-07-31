@@ -23,7 +23,7 @@ class CentralManager {
     List<Map<String, Object>> getNodeDetails() {
         nodes.collect { node ->
             [
-                name: node.gettName(),
+                name: node.getName(),
                 online: node.isOnline(),
                 temporarilyOffline: node.isTemporarilyOffline(),
                 idle: node.isIdle(),
