@@ -33,6 +33,10 @@ class Job {
         return job ? job.disabled : false
     }
 
+    static List<String> getAllJobs() {
+        return Jenkins.instance.items.collect { it.name }
+    }
+
     List<Map<String, String>> getBuildParameters(int buildNumber) {
         def build = job ? job.getBuildByNumber(buildNumber) : null
         def params = build?.actions.find { it instanceof ParametersAction }?.parameters ?: []
