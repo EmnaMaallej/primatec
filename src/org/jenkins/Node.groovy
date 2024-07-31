@@ -10,7 +10,7 @@ class Node {
         this.node = Jenkins.instance.getNode(nodeName)
     }
 
-    String gettName() {
+    String getName() {
         return node ? node.name : "Node not found"
     }
 
@@ -60,7 +60,7 @@ class Node {
 
     Map<String, Object> getNodeProperties() {
         return node ? [
-            "Name": node.name,
+            "Name": getName(),
             "Online": isOnline(),
             "Temporarily Offline": isTemporarilyOffline(),
             "Idle": isIdle(),
@@ -73,5 +73,6 @@ class Node {
         ] : [:]
     }
 }
+
 
 
