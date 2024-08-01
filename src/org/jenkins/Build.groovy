@@ -37,6 +37,10 @@ class Build {
             [(it.name): it.value]
         } : [:]
     }
+
+    String getNodeName() {
+        return build ? build.executor?.owner?.node?.displayName : "Node not found"
+    }
 }
 
 
