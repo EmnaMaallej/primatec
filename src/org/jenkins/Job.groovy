@@ -55,6 +55,7 @@ class Job {
                 timestamp: build.timestamp,
                 causes: build.causes.collect { it.toString() },
                 parameters: getBuildParameters(build.number)
+                nodeName: buildInfo.getNodeName()
             ]
         }
     }
