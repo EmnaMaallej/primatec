@@ -48,18 +48,20 @@ class Job {
     List<Map<String, Object>> getAllBuildsInfo() {
         def builds = job ? job.builds : []
         return builds.collect { build ->
+            def buildInfo = new Build(job.name, build.number)
             [
                 number: build.number,
                 result: build.result.toString(),
                 duration: build.duration,
                 timestamp: build.timestamp,
                 causes: build.causes.collect { it.toString() },
-                parameters: getBuildParameters(build.number)
+                parameters: getBuildParameters(build.number),
                 nodeName: buildInfo.getNodeName()
             ]
         }
     }
 }
+
 
 
 
