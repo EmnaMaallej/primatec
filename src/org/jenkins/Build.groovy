@@ -5,7 +5,8 @@ import jenkins.model.Jenkins
 
 class Build {
     private Run build
-    
+    private String jobName
+    private int buildNumber
 
     Build(String jobName, int buildNumber) {
         def job = Jenkins.instance.getItemByFullName(jobName)
@@ -14,8 +15,10 @@ class Build {
         this.buildNumber = buildNumber
     }
 
-   
-    
+    Run getRun() {
+        def job = Jenkins.instance.getItemByFullName(jobName)
+        return job?.getBuildByNumber(buildNumber)
+    }
 
     String getNodeName() {
         def run = getRun()
@@ -63,11 +66,8 @@ class Build {
             [(it.name): it.value]
         } : [:]
     }
-
-    String getNodeName() {
-        return build ? build.executor?.owner?.node?.displayName : "Node not found"
-    }
 }
+
 
 
 
